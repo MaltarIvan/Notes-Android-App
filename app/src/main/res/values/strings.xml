@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">Notes</string>
+    <string name="save_button_caption">Save</string>
+    <string name="service_intent_uri_key">uri</string>
+    <string name="service_intent_note_key">note</string>
 </resources>
