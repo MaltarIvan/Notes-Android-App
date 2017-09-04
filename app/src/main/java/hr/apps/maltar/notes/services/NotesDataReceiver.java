@@ -1,12 +1,14 @@
 package hr.apps.maltar.notes.services;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -14,6 +16,7 @@ import hr.apps.maltar.notes.R;
 import hr.apps.maltar.notes.SQLmanager.NotesContract;
 import hr.apps.maltar.notes.SQLmanager.NotesDBHelper;
 import hr.apps.maltar.notes.entities.Note;
+import hr.apps.maltar.notes.params.IntentFilterParams;
 
 /**
  * Created by Maltar on 30.8.2017..
@@ -114,7 +117,7 @@ public class NotesDataReceiver extends IntentService {
             Note note = new Note(noteDate, noteContent);
             notes.add(note);
         }
-        Intent intent = new Intent("all_notes_intent");
+        Intent intent = new Intent(IntentFilterParams.ACTION_LOAD_ALL_NOTES);
         intent.putParcelableArrayListExtra("notes", notes);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
@@ -140,13 +143,32 @@ public class NotesDataReceiver extends IntentService {
 
         Note note = new Note(noteDate, noteContent);
 
+        /**
+         * možda bude trebalo
+         
         Intent intent = new Intent("single_note_intent");
         intent.putExtra("note", note);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+         */
+
+        // TODO: 4.9.2017. otvoriti editor za 'note' 
     }
 
     private void addNote() {
-        // TODO: 30.8.2017.
+        if (recievedNote == null) {
+            Log.d(LOG_TAG, "Error: no note send to NoteDataReceiver");
+        } else {
+            database = notesDBHelper.getWritableDatabase();
+            ContentValues values = new ContentValues();
+            values.put(NotesContract.NotesEntry.COLUMN_DATE, recievedNote.getDateLong());
+            values.put(NotesContract.NotesEntry.COLUMN_CONTENT, recievedNote.getContent());
+            database.insert(NotesContract.NotesEntry.TABLE_NAME, null, values);
+            // // TODO: 4.9.2017. a kaj sad ?
+
+            Intent intent = new Intent(IntentFilterParams.ACTION_ADD_NEW_NOTE);
+            intent.putExtra("note", recievedNote);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
     }
 
     private void updateNote(Uri uri) {
