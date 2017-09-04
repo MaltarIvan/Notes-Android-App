@@ -61,11 +61,12 @@ public class NotesDataReceiver extends IntentService {
     protected void onHandleIntent(Intent intent) {
         Uri uri = intent.getParcelableExtra(getString(R.string.service_intent_uri_key));
         recievedNote = intent.getParcelableExtra(getString(R.string.service_intent_note_key));
+        handleURI(uri);
     }
 
     @Override
     public void onDestroy() {
-        notesDBHelper.close();
+        if (notesDBHelper != null) notesDBHelper.close();
         super.onDestroy();
     }
 

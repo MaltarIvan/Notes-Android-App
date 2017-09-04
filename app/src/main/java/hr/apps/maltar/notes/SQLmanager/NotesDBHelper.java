@@ -16,7 +16,7 @@ public class NotesDBHelper extends SQLiteOpenHelper {
             NotesContract.NotesEntry.TABLE_NAME + " (" +
             NotesContract.NotesEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
             NotesContract.NotesEntry.COLUMN_DATE + " DATE," +
-            NotesContract.NotesEntry.COLUMN_CONTENT + " TEXT NOT NULL";
+            NotesContract.NotesEntry.COLUMN_CONTENT + " TEXT NOT NULL)";
 
     private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + NotesContract.NotesEntry.TABLE_NAME;
 

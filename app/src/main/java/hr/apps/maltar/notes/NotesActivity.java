@@ -5,10 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -24,15 +24,19 @@ public class NotesActivity extends AppCompatActivity {
 
     private ListView notesListView;
     private NotesAdapter notesAdapter;
-    private Button addNoteButton;
+    private FloatingActionButton addNoteButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notes);
 
+        notesAdapter = new NotesAdapter(getApplicationContext(), new ArrayList<Note>());
+
         notesListView = (ListView) findViewById(R.id.notes_list_view);
-        addNoteButton = (Button) findViewById(R.id.floating_add_button);
+        addNoteButton = (FloatingActionButton) findViewById(R.id.floating_add_button);
+
+        notesListView.setAdapter(notesAdapter);
 
         addNoteButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,12 +71,12 @@ public class NotesActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (IntentFilterParams.ACTION_ADD_NEW_NOTE.equals(intent.getAction())) {
-                // TODO: 4.9.2017. dodana nova bilješka 'note'
+                Note note = intent.getParcelableExtra("note");
+                notesAdapter.add(note);
             }
             if (IntentFilterParams.ACTION_LOAD_ALL_NOTES.equals(intent.getAction())) {
                 ArrayList<Note> notes = intent.getParcelableArrayListExtra("notes");
-                notesAdapter = new NotesAdapter(getApplicationContext(), notes);
-                notesListView.setAdapter(notesAdapter);
+                notesAdapter.addAll(notes);
             }
         }
     }
