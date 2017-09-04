@@ -4,11 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -34,6 +36,16 @@ public class NotesActivity extends AppCompatActivity {
         notesAdapter = new NotesAdapter(getApplicationContext(), new ArrayList<Note>());
 
         notesListView = (ListView) findViewById(R.id.notes_list_view);
+        notesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Note selectedNote = (Note) parent.getItemAtPosition(position);
+                Uri uri = NotesContract.loadSingleNoteUri.withAppendedPath(NotesContract.loadSingleNoteUri, String.valueOf(selectedNote.getId()));
+                Intent intent = new Intent(getApplicationContext(), AddNoteActivity.class);
+                intent.putExtra(getString(R.string.service_intent_uri_key), uri);
+                startActivity(intent);
+            }
+        });
         addNoteButton = (FloatingActionButton) findViewById(R.id.floating_add_button);
 
         notesListView.setAdapter(notesAdapter);
@@ -46,7 +58,7 @@ public class NotesActivity extends AppCompatActivity {
             }
         });
 
-        registerBroadcastManagerReceiner();
+        registerBroadcastManagerReceiver();
 
         loadNotes();
     }
@@ -57,12 +69,13 @@ public class NotesActivity extends AppCompatActivity {
         startService(intent);
     }
 
-    private void registerBroadcastManagerReceiner() {
+    private void registerBroadcastManagerReceiver() {
         broadcastReceiver = new DataBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
 
         intentFilter.addAction(IntentFilterParams.ACTION_LOAD_ALL_NOTES);
         intentFilter.addAction(IntentFilterParams.ACTION_ADD_NEW_NOTE);
+        intentFilter.addAction(IntentFilterParams.ACTION_NOTE_UPDATED);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
     }
@@ -77,6 +90,10 @@ public class NotesActivity extends AppCompatActivity {
             if (IntentFilterParams.ACTION_LOAD_ALL_NOTES.equals(intent.getAction())) {
                 ArrayList<Note> notes = intent.getParcelableArrayListExtra("notes");
                 notesAdapter.addAll(notes);
+            }
+            if (IntentFilterParams.ACTION_NOTE_UPDATED.equals(intent.getAction())) {
+                notesAdapter.clear();
+                loadNotes(); // TODO: 5.9.2017. možda neka bolja metoda ?
             }
         }
     }

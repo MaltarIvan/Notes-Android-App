@@ -114,8 +114,9 @@ public class NotesDataReceiver extends IntentService {
 
             String noteContent = cursor.getString(noteContentColumnIndex);
             long noteDate = cursor.getLong(noteDateColumnIndex);
+            int id = cursor.getInt(idColumnIndex);
 
-            Note note = new Note(noteDate, noteContent);
+            Note note = new Note(noteDate, noteContent, id);
             notes.add(note);
         }
         Intent intent = new Intent(IntentFilterParams.ACTION_LOAD_ALL_NOTES);
@@ -125,11 +126,12 @@ public class NotesDataReceiver extends IntentService {
 
     private void loadNote(Uri uri) {
         database = notesDBHelper.getReadableDatabase();
-        int id = Integer.parseInt(uri.getLastPathSegment());
-        String selectQuery = "SELECT * FROM " + NotesContract.NotesEntry.TABLE_NAME + " WHERE " + NotesContract.NotesEntry._ID + " = " + id;
+        int cId = Integer.parseInt(uri.getLastPathSegment());
+        String selectQuery = "SELECT * FROM " + NotesContract.NotesEntry.TABLE_NAME + " WHERE " + NotesContract.NotesEntry._ID + " = " + cId;
         Cursor cursor = database.rawQuery(selectQuery, null);
 
         if (cursor == null || cursor.getCount() < 1) {
+            Log.d(LOG_TAG, "Cursor je neispravan " + cursor.getCount());
             return;
         }
 
@@ -141,18 +143,13 @@ public class NotesDataReceiver extends IntentService {
 
         String noteContent = cursor.getString(noteContentColumnIndex);
         long noteDate = cursor.getLong(noteDateColumnIndex);
+        int id = cursor.getInt(idColumnIndex);
 
-        Note note = new Note(noteDate, noteContent);
+        Note note = new Note(noteDate, noteContent, id);
 
-        /**
-         * možda bude trebalo
-         
-        Intent intent = new Intent("single_note_intent");
+        Intent intent = new Intent(IntentFilterParams.ACTION_LOADED_SINGLE_NOTE);
         intent.putExtra("note", note);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-         */
-
-        // TODO: 4.9.2017. otvoriti editor za 'note' 
     }
 
     private void addNote() {
@@ -164,7 +161,6 @@ public class NotesDataReceiver extends IntentService {
             values.put(NotesContract.NotesEntry.COLUMN_DATE, recievedNote.getDateLong());
             values.put(NotesContract.NotesEntry.COLUMN_CONTENT, recievedNote.getContent());
             database.insert(NotesContract.NotesEntry.TABLE_NAME, null, values);
-            // // TODO: 4.9.2017. a kaj sad ?
 
             Intent intent = new Intent(IntentFilterParams.ACTION_ADD_NEW_NOTE);
             intent.putExtra("note", recievedNote);
@@ -173,7 +169,20 @@ public class NotesDataReceiver extends IntentService {
     }
 
     private void updateNote(Uri uri) {
-        // TODO: 30.8.2017.
+        if (recievedNote == null) {
+            Log.d(LOG_TAG, "Error: no note send to NoteDataReceiver");
+        } else {
+            String selection = "_id=" + Integer.parseInt(uri.getLastPathSegment());
+            ContentValues values = new ContentValues();
+            values.put(NotesContract.NotesEntry.COLUMN_DATE, recievedNote.getDateLong());
+            values.put(NotesContract.NotesEntry.COLUMN_CONTENT, recievedNote.getContent());
+            database = notesDBHelper.getWritableDatabase();
+            database.update(NotesContract.NotesEntry.TABLE_NAME, values, selection, null);
+
+            Intent intent = new Intent(IntentFilterParams.ACTION_NOTE_UPDATED);
+            intent.putExtra("note", recievedNote);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
     }
 
     private void deleteAllNotes() {

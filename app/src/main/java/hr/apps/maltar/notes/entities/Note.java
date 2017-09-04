@@ -10,15 +10,28 @@ import android.os.Parcelable;
 public class Note implements Parcelable {
     private Long dateLong;
     private String content;
+    private int id;
 
     public Note(Long dateLong, String content) {
         this.dateLong = dateLong;
         this.content = content;
+        this.id = 0;
+    }
+
+    public Note(Long dateLong, String content, int id) {
+        this.dateLong = dateLong;
+        this.content = content;
+        this.id = id;
     }
 
     public Note(Parcel source) {
         this.dateLong = source.readLong();
         this.content = source.readString();
+        this.id = source.readInt();
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Long getDateLong() {
@@ -46,6 +59,7 @@ public class Note implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(this.dateLong);
         dest.writeString(this.content);
+        dest.writeInt(this.id);
     }
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
