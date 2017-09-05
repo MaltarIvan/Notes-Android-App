@@ -195,6 +195,14 @@ public class NotesDataReceiver extends IntentService {
     }
 
     private void deleteNote(Uri uri) {
-        // TODO: 5.9.2017.
+        String whereClause = NotesContract.NotesEntry._ID + "=?";
+        String[] whereArgs = new String[] {
+                String.valueOf(uri.getLastPathSegment())
+        };
+        database = notesDBHelper.getWritableDatabase();
+        long rows = database.delete(NotesContract.NotesEntry.TABLE_NAME, whereClause, whereArgs);
+
+        Intent intent = new Intent(IntentFilterParams.ACTION_DELETE_NOTE);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 }

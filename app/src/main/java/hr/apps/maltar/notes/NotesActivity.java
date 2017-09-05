@@ -82,6 +82,7 @@ public class NotesActivity extends AppCompatActivity {
         intentFilter.addAction(IntentFilterParams.ACTION_ADD_NEW_NOTE);
         intentFilter.addAction(IntentFilterParams.ACTION_NOTE_UPDATED);
         intentFilter.addAction(IntentFilterParams.ACTION_DELETE_ALL_NOTES);
+        intentFilter.addAction(IntentFilterParams.ACTION_DELETE_NOTE);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
     }
@@ -150,6 +151,10 @@ public class NotesActivity extends AppCompatActivity {
             }
             if (IntentFilterParams.ACTION_DELETE_ALL_NOTES.equals(intent.getAction())) {
                 notesAdapter.clear();
+            }
+            if (IntentFilterParams.ACTION_DELETE_NOTE.equals(intent.getAction())) {
+                notesAdapter.clear();
+                loadNotes(); // TODO: 5.9.2017. ???????????????????????????????????? 
             }
         }
     }

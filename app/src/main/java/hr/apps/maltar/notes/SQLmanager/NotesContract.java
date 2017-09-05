@@ -24,6 +24,7 @@ public class NotesContract {
     public static final Uri updateNoteUri = Uri.parse(BASE_CONTENT + "/" + PATH_NOTE_UPDATE);
     public static final Uri addNoteUri = Uri.parse(BASE_CONTENT + "/" + PATH_NOTE_ADD);
     public static final Uri deleteAllNotesUri = Uri.parse(BASE_CONTENT + "/" + PATH_NOTES_DELETE);
+    public static final Uri deleteNoteUri = Uri.parse(BASE_CONTENT + "/" + PATH_NOTE_DELETE_ID);
 
     public static class NotesEntry implements BaseColumns {
         public static final String TABLE_NAME = "notes";
