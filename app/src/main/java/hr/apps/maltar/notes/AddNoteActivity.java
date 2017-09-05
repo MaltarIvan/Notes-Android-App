@@ -30,6 +30,8 @@ public class AddNoteActivity extends AppCompatActivity {
 
     private BroadcastReceiver broadcastReceiver;
 
+    private String oldContent;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,20 +42,26 @@ public class AddNoteActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Uri uri;
-                Note note;
-                if (currentNote == null) {
-                    uri = NotesContract.addNoteUri;
-                    note = new Note(System.currentTimeMillis() ,contentEditText.getText().toString());
-                } else {
-                    uri = NotesContract.updateNoteUri.withAppendedPath(NotesContract.updateNoteUri, String.valueOf(currentNote.getId()));
-                    note = new Note(System.currentTimeMillis() ,contentEditText.getText().toString(), currentNote.getId());
+                if (!contentEditText.getText().toString().isEmpty()) {
+                    Uri uri;
+                    Note note;
+                    if (currentNote == null) {
+                        uri = NotesContract.addNoteUri;
+                        note = new Note(System.currentTimeMillis() ,contentEditText.getText().toString());
+                    } else {
+                        if (oldContent.equals(contentEditText.getText().toString())) {
+                            finish();
+                            return;
+                        }
+                        uri = NotesContract.updateNoteUri.withAppendedPath(NotesContract.updateNoteUri, String.valueOf(currentNote.getId()));
+                        note = new Note(System.currentTimeMillis() ,contentEditText.getText().toString(), currentNote.getId());
+                    }
+                    Intent intent = new Intent(getApplicationContext(), NotesDataReceiver.class);
+                    intent.putExtra(getString(R.string.service_intent_uri_key), uri);
+                    intent.putExtra(getString(R.string.service_intent_note_key), note);
+                    startService(intent);
+                    finish();
                 }
-                Intent intent = new Intent(getApplicationContext(), NotesDataReceiver.class);
-                intent.putExtra(getString(R.string.service_intent_uri_key), uri);
-                intent.putExtra(getString(R.string.service_intent_note_key), note);
-                startService(intent);
-                finish();
             }
         });
 
@@ -135,6 +143,7 @@ public class AddNoteActivity extends AppCompatActivity {
             if (IntentFilterParams.ACTION_LOADED_SINGLE_NOTE.equals(intent.getAction())) {
                 currentNote = intent.getParcelableExtra("note");
                 contentEditText.setText(currentNote.getContent());
+                oldContent = currentNote.getContent();
             }
         }
     }
