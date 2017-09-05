@@ -187,10 +187,14 @@ public class NotesDataReceiver extends IntentService {
     }
 
     private void deleteAllNotes() {
-        // TODO: 30.8.2017.
+        database = notesDBHelper.getReadableDatabase();
+        database.delete(NotesContract.NotesEntry.TABLE_NAME, null, null);
+
+        Intent intent = new Intent(IntentFilterParams.ACTION_DELETE_ALL_NOTES);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     private void deleteNote(Uri uri) {
-        // TODO: 30.8.2017.
+        // TODO: 5.9.2017.
     }
 }

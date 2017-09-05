@@ -11,4 +11,5 @@ public class IntentFilterParams {
     public static final String ACTION_ADD_NEW_NOTE =  "note_added_intent";
     public static final String ACTION_NOTE_UPDATED = "note_updated_intent";
     public static final String ACTION_LOADED_SINGLE_NOTE = "loaded_single_note_intent";
+    public static final String ACTION_DELETE_ALL_NOTES = "delete_all_notes_intent";
 }

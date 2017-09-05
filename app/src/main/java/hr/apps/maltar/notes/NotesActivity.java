@@ -2,13 +2,18 @@ package hr.apps.maltar.notes;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -76,8 +81,56 @@ public class NotesActivity extends AppCompatActivity {
         intentFilter.addAction(IntentFilterParams.ACTION_LOAD_ALL_NOTES);
         intentFilter.addAction(IntentFilterParams.ACTION_ADD_NEW_NOTE);
         intentFilter.addAction(IntentFilterParams.ACTION_NOTE_UPDATED);
+        intentFilter.addAction(IntentFilterParams.ACTION_DELETE_ALL_NOTES);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(broadcastReceiver, intentFilter);
+    }
+
+    private void deleteAllNotesConfirmationDialog() {
+        if (notesAdapter.getCount() > 0) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Delete all notes?");
+            builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    deleteAllNotes();
+                }
+            });
+            builder.setNegativeButton("Cancle", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (dialog != null) {
+                        dialog.dismiss();
+                    }
+                }
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
+    }
+
+    private void deleteAllNotes() {
+        Intent intent = new Intent(getApplicationContext(), NotesDataReceiver.class);
+        intent.putExtra(getString(R.string.service_intent_uri_key), NotesContract.deleteAllNotesUri);
+        startService(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.delete_all_notes_item:
+                deleteAllNotesConfirmationDialog();
+                Log.d("ITEM", String.valueOf(item.getItemId()) + " " + String.valueOf(R.id.delete_all_notes_item));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private class DataBroadcastReceiver extends BroadcastReceiver {
@@ -94,6 +147,9 @@ public class NotesActivity extends AppCompatActivity {
             if (IntentFilterParams.ACTION_NOTE_UPDATED.equals(intent.getAction())) {
                 notesAdapter.clear();
                 loadNotes(); // TODO: 5.9.2017. možda neka bolja metoda ?
+            }
+            if (IntentFilterParams.ACTION_DELETE_ALL_NOTES.equals(intent.getAction())) {
+                notesAdapter.clear();
             }
         }
     }
