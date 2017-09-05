@@ -160,7 +160,8 @@ public class NotesDataReceiver extends IntentService {
             ContentValues values = new ContentValues();
             values.put(NotesContract.NotesEntry.COLUMN_DATE, recievedNote.getDateLong());
             values.put(NotesContract.NotesEntry.COLUMN_CONTENT, recievedNote.getContent());
-            database.insert(NotesContract.NotesEntry.TABLE_NAME, null, values);
+            long id = database.insert(NotesContract.NotesEntry.TABLE_NAME, null, values);
+            recievedNote.setId(id);
 
             Intent intent = new Intent(IntentFilterParams.ACTION_ADD_NEW_NOTE);
             intent.putExtra("note", recievedNote);

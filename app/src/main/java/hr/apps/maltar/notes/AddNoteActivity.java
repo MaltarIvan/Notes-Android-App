@@ -36,12 +36,14 @@ public class AddNoteActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Note note = new Note(System.currentTimeMillis() ,contentEditText.getText().toString());
                 Uri uri;
+                Note note;
                 if (currentNote == null) {
                     uri = NotesContract.addNoteUri;
+                    note = new Note(System.currentTimeMillis() ,contentEditText.getText().toString());
                 } else {
                     uri = NotesContract.updateNoteUri.withAppendedPath(NotesContract.updateNoteUri, String.valueOf(currentNote.getId()));
+                    note = new Note(System.currentTimeMillis() ,contentEditText.getText().toString(), currentNote.getId());
                 }
                 Intent intent = new Intent(getApplicationContext(), NotesDataReceiver.class);
                 intent.putExtra(getString(R.string.service_intent_uri_key), uri);

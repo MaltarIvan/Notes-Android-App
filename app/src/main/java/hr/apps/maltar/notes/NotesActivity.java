@@ -84,8 +84,8 @@ public class NotesActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (IntentFilterParams.ACTION_ADD_NEW_NOTE.equals(intent.getAction())) {
-                Note note = intent.getParcelableExtra("note");
-                notesAdapter.add(note);
+                notesAdapter.clear();
+                loadNotes();
             }
             if (IntentFilterParams.ACTION_LOAD_ALL_NOTES.equals(intent.getAction())) {
                 ArrayList<Note> notes = intent.getParcelableArrayListExtra("notes");
