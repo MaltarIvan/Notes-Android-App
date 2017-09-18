@@ -12,6 +12,9 @@ import android.widget.Button;
 
 import hr.apps.maltar.notes.AddNoteActivity;
 import hr.apps.maltar.notes.R;
+import hr.apps.maltar.notes.SQLmanager.NotesContract;
+import hr.apps.maltar.notes.UploadActivity;
+import hr.apps.maltar.notes.entities.Note;
 
 /**
  * Created by Maltar on 18.9.2017..
@@ -23,10 +26,10 @@ public class PickActionDialogFragment extends DialogFragment {
 
     public PickActionDialogFragment() {}
 
-    public static PickActionDialogFragment newInstance(Uri uri) {
+    public static PickActionDialogFragment newInstance(Note note) {
         PickActionDialogFragment fragment = new PickActionDialogFragment();
         Bundle args = new Bundle();
-        args.putParcelable("uri", uri);
+        args.putParcelable("note", note);
         fragment.setArguments(args);
         return fragment;
     }
@@ -41,16 +44,28 @@ public class PickActionDialogFragment extends DialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final Uri uri = getArguments().getParcelable("uri");
+        final Note note = getArguments().getParcelable(getString(R.string.pick_action_dialog_note_argument));
         editNoteButton = (Button) view.findViewById(R.id.edit_note_action);
         uploadNoteButton = (Button) view.findViewById(R.id.upload_note_action);
 
         editNoteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Uri uri = NotesContract.loadSingleNoteUri.withAppendedPath(NotesContract.loadSingleNoteUri, String.valueOf(note.getId()));
                 Intent intent = new Intent(getContext(), AddNoteActivity.class);
                 intent.putExtra(getString(R.string.service_intent_uri_key), uri);
                 startActivity(intent);
+                getDialog().dismiss();
+            }
+        });
+
+        uploadNoteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), UploadActivity.class);
+                intent.putExtra(getString(R.string.upload_activity_intent_note_key), note);
+                startActivity(intent);
+                getDialog().dismiss();
             }
         });
     }

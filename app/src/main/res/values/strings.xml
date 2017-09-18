@@ -3,4 +3,6 @@
     <string name="save_button_caption">Save</string>
     <string name="service_intent_uri_key">uri</string>
     <string name="service_intent_note_key">note</string>
+    <string name="pick_action_dialog_note_argument">note</string>
+    <string name="upload_activity_intent_note_key">note</string>
 </resources>

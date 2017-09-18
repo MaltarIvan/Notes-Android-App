@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
@@ -47,8 +46,7 @@ public class NotesActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Note selectedNote = (Note) parent.getItemAtPosition(position);
-                Uri uri = NotesContract.loadSingleNoteUri.withAppendedPath(NotesContract.loadSingleNoteUri, String.valueOf(selectedNote.getId()));
-                showActionPickerDialog(uri);
+                showActionPickerDialog(selectedNote);
             }
         });
         addNoteButton = (FloatingActionButton) findViewById(R.id.floating_add_button);
@@ -159,9 +157,9 @@ public class NotesActivity extends AppCompatActivity {
         }
     }
 
-    private void showActionPickerDialog(Uri uri) {
+    private void showActionPickerDialog(Note note) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        PickActionDialogFragment pickActionDialogFragment = PickActionDialogFragment.newInstance(uri);
+        PickActionDialogFragment pickActionDialogFragment = PickActionDialogFragment.newInstance(note);
         pickActionDialogFragment.show(fragmentManager, "fragment_pick_action");
     }
 }
