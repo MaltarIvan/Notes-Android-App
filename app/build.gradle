@@ -20,6 +20,10 @@ android {
 }
 
 dependencies {
+    // Retrofit & OkHttp
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+
     compile 'com.android.support:design:25.0.1'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])

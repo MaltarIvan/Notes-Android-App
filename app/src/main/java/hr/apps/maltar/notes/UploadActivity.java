@@ -5,15 +5,25 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import hr.apps.maltar.notes.entities.Note;
+import hr.apps.maltar.notes.entities.NoteServer;
+import hr.apps.maltar.notes.restClinet.RClient;
+import hr.apps.maltar.notes.restClinet.UploadNoteRequest;
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class UploadActivity extends AppCompatActivity {
-    private static final int PERMISSION_REQUEST_INTERNET = 111;
+    private final String API_URL_BASE = "http://192.168.1.5:8080/";
 
     private ProgressBar progressBar;
     private TextView uploadStatTextView;
@@ -57,6 +67,42 @@ public class UploadActivity extends AppCompatActivity {
 
     private void uploadNote() {
         uploadStatTextView.setText("Uploading note...");
+
+        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
+
+        Retrofit.Builder builder =
+                new Retrofit.Builder()
+                        .baseUrl(API_URL_BASE)
+                        .addConverterFactory(
+                                GsonConverterFactory.create()
+                        );
+
+        Retrofit retrofit =
+                builder
+                        .client(
+                                httpClient.build()
+                        )
+                        .build();
+
+        RClient client = retrofit.create(RClient.class);
+
+        Call<NoteServer> call = client.uploadNote(new UploadNoteRequest(note.getDateLong(), note.getContent()));
+        call.enqueue(new Callback<NoteServer>() {
+            @Override
+            public void onResponse(Call<NoteServer> call, Response<NoteServer> response) {
+                Log.d("SUCESS", response.toString());
+                uploadStatTextView.setText("Note uploaded!");
+                progressBar.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onFailure(Call<NoteServer> call, Throwable t) {
+                Log.d("FAILURE", t.getMessage()); //// TODO: 19.9.2017. prazan response nije fail... 
+                uploadStatTextView.setText("Note upload failed: " + t.getMessage());
+                progressBar.setVisibility(View.INVISIBLE);
+                restartButton.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     private void handleNoInternetConnection() {
