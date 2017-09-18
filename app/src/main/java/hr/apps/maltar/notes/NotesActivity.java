@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 
 import hr.apps.maltar.notes.SQLmanager.NotesContract;
 import hr.apps.maltar.notes.entities.Note;
+import hr.apps.maltar.notes.fragments.PickActionDialogFragment;
 import hr.apps.maltar.notes.listAdapters.NotesAdapter;
 import hr.apps.maltar.notes.params.IntentFilterParams;
 import hr.apps.maltar.notes.services.NotesDataReceiver;
@@ -46,9 +48,7 @@ public class NotesActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Note selectedNote = (Note) parent.getItemAtPosition(position);
                 Uri uri = NotesContract.loadSingleNoteUri.withAppendedPath(NotesContract.loadSingleNoteUri, String.valueOf(selectedNote.getId()));
-                Intent intent = new Intent(getApplicationContext(), AddNoteActivity.class);
-                intent.putExtra(getString(R.string.service_intent_uri_key), uri);
-                startActivity(intent);
+                showActionPickerDialog(uri);
             }
         });
         addNoteButton = (FloatingActionButton) findViewById(R.id.floating_add_button);
@@ -157,5 +157,11 @@ public class NotesActivity extends AppCompatActivity {
                 loadNotes(); // TODO: 5.9.2017. ???????????????????????????????????? 
             }
         }
+    }
+
+    private void showActionPickerDialog(Uri uri) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        PickActionDialogFragment pickActionDialogFragment = PickActionDialogFragment.newInstance(uri);
+        pickActionDialogFragment.show(fragmentManager, "fragment_pick_action");
     }
 }
